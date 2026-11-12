@@ -224,7 +224,13 @@ public partial class MainWindow : Window
     private async Task RunUpdateGateAsync()
     {
         if (await Updater.CheckAndPromptAsync(this, EnqueueLog))
-            return; // the new build was launched; this instance is exiting
+        {
+            // The new build is already running; close this one. Closing fires
+            // Window_Closed, which stops the UI pump and exits the process —
+            // without this the old instance would linger beside the new one.
+            Close();
+            return;
+        }
 
         AppendLog("[*] Starting background tasks...", "Gray");
         _ = Task.Run(RunStartupSequence);
