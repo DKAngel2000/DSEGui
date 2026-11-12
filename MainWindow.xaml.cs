@@ -202,11 +202,13 @@ public partial class MainWindow : Window
 
     private void Window_Loaded(object sender, RoutedEventArgs e)
     {
-        AppendLog("DSE Setup Tool v1.1", "Magenta");
-        AppendLog("DLL by SouNobbao  |  Batch by DNAngel", "DarkGray");
+        AppendLog($"DSE Setup Tool v{Updater.DisplayVersion()}", "Magenta");
+        AppendLog("DLL by SouNobbao  |  GUI by DNAngel", "DarkGray");
         AppendLog("", "Gray");
         if (_migratedCacheFiles > 0)
             AppendLog($"[*] Moved {_migratedCacheFiles} cached file(s) into the Dse folder.", "DarkGray");
+        // Footer build number comes from the assembly, never a hardcoded string.
+        VersionLabel.Text = $"v{Updater.DisplayVersion()}";
 #if !DEBUG
         // Check GitHub for a newer build before doing any work; a released
         // build updates itself (prompt first) and relaunches, so the startup

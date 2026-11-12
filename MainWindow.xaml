@@ -667,7 +667,7 @@
             <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <TextBlock Text="GUI by DNAngel" Foreground="#555555" FontSize="10" VerticalAlignment="Center" FontFamily="Segoe UI" />
-          <TextBlock Grid.Column="1" Text="v1.1" Foreground="#555555" FontSize="10" VerticalAlignment="Center" FontFamily="Segoe UI" />
+          <TextBlock Grid.Column="1" x:Name="VersionLabel" Text="v1.1" Foreground="#555555" FontSize="10" VerticalAlignment="Center" FontFamily="Segoe UI" />
         </Grid>
       </Border>
     </Grid>
