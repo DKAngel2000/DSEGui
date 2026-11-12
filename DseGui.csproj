@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>DseGui</RootNamespace>
+    <AssemblyName>DseGui</AssemblyName>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+
+    <!-- Single file, framework-dependent -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>false</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+
+    <!-- Keep the apphost CET-free: Windows 10/11 with hardware-enforced stack protection can
+         otherwise refuse to start it. -->
+    <CETCompat>false</CETCompat>
+
+    <!-- Assembly info -->
+    <!-- <Version> is what the updater and the release workflow both key off:
+         the release tag is v<Version> and the app compares it against its own
+         informational version. Bump it to ship a new build. -->
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <ProductName>DSE Setup Tool</ProductName>
+    <Company>SouNobbao / DNAngel</Company>
+    <Description>Driver Signature Enforcement bypass utility</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+</Project>

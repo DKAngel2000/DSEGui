@@ -1,0 +1,702 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Window x:Class="DseGui.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="DSE Setup Tool" Width="1000" Height="620" MinWidth="800" MinHeight="500" WindowStartupLocation="CenterScreen" Background="#0F0F0F" Foreground="#E0E0E0" FontFamily="Consolas" ResizeMode="CanResize" xmlns:dsegui="clr-namespace:DseGui;assembly=DseGui">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <BooleanToVisibilityConverter x:Key="BoolToVis" />
+      <Style x:Key="DarkScrollViewer" TargetType="{x:Type ScrollViewer}">
+        <Setter Property="Background" Value="#00FFFFFF" />
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+      </Style>
+      <Style x:Key="DarkScrollThumb" TargetType="{x:Type Thumb}">
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type Thumb}">
+              <Border Name="ThumbBorder" Background="#3A3A3A" CornerRadius="3" Width="6" HorizontalAlignment="Center" />
+              <ControlTemplate.Triggers>
+                <Trigger Property="UIElement.IsMouseOver" Value="True">
+                  <Setter TargetName="ThumbBorder" Property="Border.Background" Value="#9B59B6" />
+                </Trigger>
+                <Trigger Property="Thumb.IsDragging" Value="True">
+                  <Setter TargetName="ThumbBorder" Property="Border.Background" Value="#9B59B6" />
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+      <Style x:Key="DarkScrollRepeat" TargetType="{x:Type RepeatButton}">
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type RepeatButton}">
+              <Rectangle Fill="#00FFFFFF" />
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+      <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
+        <Setter Property="Width" Value="10" />
+        <Setter Property="MinWidth" Value="10" />
+        <Setter Property="Background" Value="#00FFFFFF" />
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type ScrollBar}">
+              <Border Background="#00FFFFFF" Padding="2,4">
+                <Track Name="PART_Track" IsDirectionReversed="True">
+                  <Track.DecreaseRepeatButton>
+                    <RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource DarkScrollRepeat}" />
+                  </Track.DecreaseRepeatButton>
+                  <Track.IncreaseRepeatButton>
+                    <RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource DarkScrollRepeat}" />
+                  </Track.IncreaseRepeatButton>
+                  <Track.Thumb>
+                    <Thumb Style="{StaticResource DarkScrollThumb}" />
+                  </Track.Thumb>
+                </Track>
+              </Border>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+      <Style x:Key="MenuButton" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="#1E1E1E" />
+        <Setter Property="Foreground" Value="#E0E0E0" />
+        <Setter Property="BorderBrush" Value="#333333" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="14,10" />
+        <Setter Property="Margin" Value="0,3" />
+        <Setter Property="FontFamily" Value="Consolas" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="FrameworkElement.Cursor" Value="Hand" />
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type Button}">
+              <Border Name="OuterBorder" Background="{TemplateBinding Control.Background}" BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="{TemplateBinding Control.BorderThickness}" CornerRadius="3">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <Border Name="AccentBar" Grid.Column="0" Background="#00FFFFFF" CornerRadius="3,0,0,3" />
+                  <ContentPresenter Grid.Column="1" Margin="{TemplateBinding Control.Padding}" HorizontalAlignment="{TemplateBinding Control.HorizontalContentAlignment}" VerticalAlignment="Center" />
+                </Grid>
+              </Border>
+              <ControlTemplate.Triggers>
+                <Trigger Property="UIElement.IsMouseOver" Value="True">
+                  <Setter Property="Background" Value="#2A2A2A" />
+                  <Setter Property="BorderBrush" Value="#9B59B6" />
+                  <Setter TargetName="AccentBar" Property="Border.Background" Value="#9B59B6" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                  <Setter Property="Background" Value="#3A2A4A" />
+                  <Setter TargetName="AccentBar" Property="Border.Background" Value="#7D3C98" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                  <Setter Property="UIElement.Opacity" Value="0.4" />
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+      <Style x:Key="PrimaryButton" TargetType="{x:Type Button}" BasedOn="{StaticResource MenuButton}">
+        <Setter Property="Background" Value="#1E1A2E" />
+        <Setter Property="BorderBrush" Value="#9B59B6" />
+        <Setter Property="Foreground" Value="#E0E0FF" />
+      </Style>
+      <Style x:Key="DarkCheckBox" TargetType="{x:Type CheckBox}">
+        <Setter Property="FrameworkElement.Cursor" Value="Hand" />
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type CheckBox}">
+              <Border Name="Box" Width="17" Height="17" Background="#1A1A1A" BorderBrush="#666666" BorderThickness="1.5" CornerRadius="3">
+                <Path Name="CheckMark" Data="M2,8 L6.5,12.5 L14,3" Stroke="#FFFFFF" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Visibility="Collapsed" Stretch="None" />
+              </Border>
+              <ControlTemplate.Triggers>
+                <Trigger Property="ToggleButton.IsChecked" Value="True">
+                  <Setter TargetName="Box" Property="Border.Background" Value="#9B59B6" />
+                  <Setter TargetName="Box" Property="Border.BorderBrush" Value="#9B59B6" />
+                  <Setter TargetName="CheckMark" Property="Visibility" Value="Visible" />
+                </Trigger>
+                <Trigger Property="UIElement.IsMouseOver" Value="True">
+                  <Setter TargetName="Box" Property="Border.BorderBrush" Value="#9B59B6" />
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+      <Style x:Key="DarkTextBox" TargetType="{x:Type TextBox}">
+        <Setter Property="Background" Value="#1A1A1A" />
+        <Setter Property="Foreground" Value="#E0E0E0" />
+        <Setter Property="BorderBrush" Value="#333333" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="8,6" />
+        <Setter Property="FontFamily" Value="Consolas" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextBoxBase.CaretBrush" Value="#9B59B6" />
+        <Setter Property="TextBoxBase.SelectionBrush" Value="#9B59B6" />
+      </Style>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" MinWidth="380" />
+      <ColumnDefinition Width="4" />
+      <ColumnDefinition Width="360" MinWidth="260" />
+    </Grid.ColumnDefinitions>
+    <Grid Column="0" Background="#0F0F0F">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+      <Border Grid.Row="0" Background="#141414" BorderBrush="#1E1E1E" BorderThickness="0,0,0,1" Padding="20,14">
+        <StackPanel>
+          <TextBlock Text="DSE Setup Tool" FontSize="20" FontWeight="Bold" Foreground="#9B59B6" />
+          <Border Background="#9B59B6" Height="1" Margin="0,4,0,4" Opacity="0.3" />
+          <TextBlock Text="Driver Signature Enforcement bypass utility" FontSize="11" Foreground="#666666" FontFamily="Segoe UI" />
+        </StackPanel>
+      </Border>
+      <ScrollViewer Grid.Row="1" Style="{StaticResource DarkScrollViewer}" Padding="20,16">
+        <StackPanel Name="ContentPanel">
+          <StackPanel Name="ViewStartup" Visibility="Visible">
+            <TextBlock Text="Starting up — please wait..." FontSize="13" Foreground="#555555" FontFamily="Segoe UI" Margin="0,0,0,16" />
+            <Border Background="#141414" BorderBrush="#1E1E1E" BorderThickness="1" CornerRadius="4" Padding="14,12" Margin="0,0,0,8">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                  <TextBlock Text="PDB Symbol Check" Foreground="#888888" FontSize="11" Margin="0,0,0,4" />
+                  <TextBlock Name="PdbStatusText" Text="Querying Microsoft symbol server..." Foreground="#E0C060" FontSize="12" />
+                </StackPanel>
+                <TextBlock Name="PdbSourceBadge" Grid.Column="1" Text="..." Foreground="#555555" FontSize="11" VerticalAlignment="Center" />
+              </Grid>
+            </Border>
+            <Border Background="#141414" BorderBrush="#1E1E1E" BorderThickness="1" CornerRadius="4" Padding="14,12" Margin="0,0,0,8">
+              <StackPanel>
+                <TextBlock Text="Asset Verification" Foreground="#888888" FontSize="11" Margin="0,0,0,8" />
+                <ItemsControl Name="AssetStatusList">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Grid Margin="0,2">
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="16" />
+                          <ColumnDefinition Width="*" />
+                          <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" FontSize="11" VerticalAlignment="Center" Text="{Binding Icon}" Foreground="{Binding IconColor}" />
+                        <TextBlock Grid.Column="1" Foreground="#CCCCCC" FontSize="12" Margin="6,0,0,0" Text="{Binding Name}" />
+                        <TextBlock Grid.Column="2" FontSize="11" Text="{Binding Status}" Foreground="{Binding StatusColor}" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+            <Border Name="BuildInfoPanel" Background="#141414" BorderBrush="#1E1E1E" BorderThickness="1" CornerRadius="4" Padding="14,12" Visibility="Collapsed">
+              <StackPanel>
+                <TextBlock Text="System" Foreground="#888888" FontSize="11" Margin="0,0,0,6" />
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <StackPanel Grid.Column="0">
+                    <TextBlock Text="Windows Build" Foreground="#555555" FontSize="10" />
+                    <TextBlock Name="WinBuildText" Text="—" Foreground="#CCCCCC" FontSize="12" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="1">
+                    <TextBlock Text="DLL Selected" Foreground="#555555" FontSize="10" />
+                    <TextBlock Name="DllSelectedText" Text="—" Foreground="#9B59B6" FontSize="12" FontWeight="Bold" />
+                  </StackPanel>
+                </Grid>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+          <StackPanel Name="ViewFolder" Visibility="Collapsed">
+            <TextBlock Text="Game Directory" FontSize="13" Foreground="#9B59B6" FontWeight="Bold" Margin="0,0,0,14" />
+            <Border Name="LastDirPanel" Background="#141414" BorderBrush="#2A1A3A" BorderThickness="1" CornerRadius="4" Padding="17,10,12,10" Margin="0,0,0,10" Visibility="Collapsed">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="📁" FontFamily="Segoe UI Emoji" FontSize="13" Margin="0,-1,10,0" VerticalAlignment="Center" Opacity="0.5" />
+                <StackPanel Grid.Column="1">
+                  <TextBlock Text="LAST USED" Foreground="#555555" FontSize="9" FontFamily="Segoe UI" Margin="0,0,0,3" />
+                  <TextBlock Name="LastDirText" Text="" Foreground="#CCCCCC" FontSize="12" TextWrapping="Wrap" />
+                </StackPanel>
+              </Grid>
+            </Border>
+            <TextBox Name="FolderInput" Style="{StaticResource DarkTextBox}" Height="36" Margin="0,0,0,8" AllowDrop="True" PreviewDragEnter="FolderInput_DragOver" PreviewDragOver="FolderInput_DragOver" PreviewDrop="FolderInput_Drop" />
+            <Grid Margin="0,0,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <Button Name="BtnBrowse" Grid.Column="0" Style="{StaticResource MenuButton}" Height="34" TextElement.FontFamily="Segoe UI Emoji" TextElement.FontSize="13" Click="BtnBrowse_Click">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                  <TextBlock Text="📁" FontSize="13" Margin="0,-1,8,0" VerticalAlignment="Center" />
+                  <TextBlock Text="Browse..." FontFamily="Consolas" FontSize="13" VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+              <Button Name="BtnUseLast" Grid.Column="2" Style="{StaticResource MenuButton}" Height="34" Visibility="Collapsed" MinWidth="90" TextElement.FontFamily="Segoe UI Emoji" TextElement.FontSize="13" Click="BtnUseLast_Click">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                  <TextBlock Text="📁" FontSize="13" Margin="0,-1,8,0" VerticalAlignment="Center" />
+                  <TextBlock Text="Use Last" FontFamily="Consolas" FontSize="13" VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+            </Grid>
+            <Button Name="BtnScanFolder" Style="{StaticResource PrimaryButton}" Height="38" Margin="0,10,0,0" Click="BtnScanFolder_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0">▶</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Scan Folder</TextBlock>
+              </StackPanel>
+            </Button>
+            <Button Name="BtnPreviousSetups" Style="{StaticResource MenuButton}" Height="34" Margin="0,8,0,0" TextElement.FontFamily="Segoe UI Emoji" TextElement.FontSize="13" Click="BtnPreviousSetups_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="🗂" FontSize="13" Margin="0,-1,8,0" VerticalAlignment="Center" />
+                <TextBlock Text="Previous Setups" FontFamily="Consolas" FontSize="13" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+            <Button Name="BtnReadme" Style="{StaticResource MenuButton}" Height="34" Margin="0,8,0,0" TextElement.FontFamily="Segoe UI Emoji" TextElement.FontSize="13" Click="BtnReadme_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="📄" FontSize="13" Margin="0,-1,8,0" VerticalAlignment="Center" />
+                <TextBlock Text="Readme" FontFamily="Consolas" FontSize="13" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
+          <StackPanel Name="ViewAlreadyDone" Visibility="Collapsed">
+            <TextBlock Text="Modifications Detected" FontSize="13" Foreground="#E0C060" FontWeight="Bold" Margin="0,0,0,4" />
+            <TextBlock Text="This folder already has DSE changes applied." FontSize="11" Foreground="#555555" Margin="0,0,0,16" />
+            <TextBlock Name="AlreadyDonePathText" Text="" Foreground="#666666" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16" />
+            <Button Name="BtnUndo" Style="{StaticResource MenuButton}" Height="38" Margin="0,0,0,6" Click="BtnUndo_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">↩</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Undo Changes</TextBlock>
+              </StackPanel>
+            </Button>
+            <Button Name="BtnContinueLaunch" Style="{StaticResource PrimaryButton}" Height="38" Margin="0,0,0,6" Click="BtnContinueLaunch_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">▶</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Continue and Launch Game</TextBlock>
+              </StackPanel>
+            </Button>
+            <Button Style="{StaticResource MenuButton}" Height="34" Margin="0,0,0,6" Click="BtnEditIniAlready_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">✎</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Edit dse.ini</TextBlock>
+              </StackPanel>
+            </Button>
+            <Button x:Name="BtnUacFromAlready" Style="{StaticResource MenuButton}" Height="34" Margin="0,0,0,6" Click="BtnUacFromAlready_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Emoji" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">🛡</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Skip UAC prompt (scheduled task)</TextBlock>
+              </StackPanel>
+            </Button>
+            <Button Name="BtnBackFromAlready" Style="{StaticResource MenuButton}" Height="34" Margin="0,0,0,6" Click="BtnNextFolder_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">←</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Back to Folder Selection</TextBlock>
+              </StackPanel>
+            </Button>
+            <Button Name="BtnExitFromAlready" Style="{StaticResource MenuButton}" Height="34" Click="BtnExit_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">✕</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Exit</TextBlock>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+          <StackPanel Name="ViewMenu" Visibility="Collapsed">
+            <TextBlock Text="What would you like to do?" FontSize="13" Foreground="#9B59B6" FontWeight="Bold" Margin="0,0,0,4" />
+            <TextBlock Name="MenuPathText" Text="" Foreground="#555555" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16" />
+            <ItemsControl Name="MenuButtonList">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Button Style="{StaticResource MenuButton}" Height="38" Margin="0,3" Tag="{Binding Action}" Click="MenuButton_Click">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                      <TextBlock FontFamily="Segoe UI Emoji" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center" Text="{Binding Icon}" />
+                      <TextBlock FontSize="13" VerticalAlignment="Center" Text="{Binding Label}" />
+                    </StackPanel>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+          <StackPanel Name="ViewDenuvChoice" Visibility="Collapsed">
+            <TextBlock Text="DenuvOwO.ini — No [LoadDlls] Section" FontSize="13" Foreground="#E0C060" FontWeight="Bold" Margin="0,0,0,4" />
+            <TextBlock Text="Choose how to load the DSE DLL:" FontSize="11" Foreground="#555555" Margin="0,0,0,16" />
+            <Border Background="#141414" BorderBrush="#333333" BorderThickness="1" CornerRadius="4" Padding="14,12" Margin="0,0,0,10">
+              <StackPanel>
+                <Button Name="BtnDenuvAppend" Style="{StaticResource PrimaryButton}" Height="38" Margin="0,0,0,6" Click="BtnDenuvAppend_Click">
+                  <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">▶</TextBlock>
+                    <TextBlock FontSize="13" Foreground="#E0E0FF" VerticalAlignment="Center">Add [LoadDlls] section to DenuvOwO.ini</TextBlock>
+                  </StackPanel>
+                </Button>
+                <TextBlock Text="Recommended for newer DenuvOwO versions. Undo and pick option 2 if it doesn't work." Foreground="#555555" FontSize="10" TextWrapping="Wrap" Margin="2,0,0,12" />
+                <Button Name="BtnDenuvPefile" Style="{StaticResource MenuButton}" Height="38" Margin="0,0,0,6" Click="BtnDenuvPefile_Click">
+                  <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">▶</TextBlock>
+                    <TextBlock FontSize="13" VerticalAlignment="Center">Patch winmm.dll / version.dll via pefile</TextBlock>
+                  </StackPanel>
+                </Button>
+                <TextBlock Text="Leaves DenuvOwO.ini untouched — for older versions." Foreground="#555555" FontSize="10" TextWrapping="Wrap" Margin="2,0,0,0" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+          <StackPanel Name="ViewMultiDir" Visibility="Collapsed">
+            <TextBlock Text="Files Found in Multiple Locations" FontSize="13" Foreground="#E0C060" FontWeight="Bold" Margin="0,0,0,4" />
+            <TextBlock Text="Select the directory to use:" FontSize="11" Foreground="#555555" Margin="0,0,0,14" />
+            <ItemsControl Name="MultiDirList">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Button Style="{StaticResource MenuButton}" Height="Auto" Padding="14,10" Margin="0,3" Content="{Binding}" Tag="{Binding}" Click="MultiDirButton_Click">
+                    <ContentControl.ContentTemplate>
+                      <DataTemplate>
+                        <TextBlock TextWrapping="Wrap" FontSize="12" Text="{Binding}" />
+                      </DataTemplate>
+                    </ContentControl.ContentTemplate>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+          <StackPanel Name="ViewLaunch" Visibility="Collapsed">
+            <TextBlock Text="Select Executable to Launch" FontSize="13" Foreground="#9B59B6" FontWeight="Bold" Margin="0,0,0,4" />
+            <TextBlock Name="LaunchPathText" Text="" Foreground="#555555" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14" />
+            <ItemsControl Name="ExeList">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Button Style="{StaticResource MenuButton}" Height="36" Margin="0,3" Content="{Binding}" Tag="{Binding}" Click="ExeButton_Click" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Button Style="{StaticResource MenuButton}" Height="34" Margin="0,12,0,3" Click="BtnEditIniLaunch_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">✎</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Edit dse.ini</TextBlock>
+              </StackPanel>
+            </Button>
+            <Button x:Name="BtnUacFromLaunch" Style="{StaticResource MenuButton}" Height="34" Margin="0,3" Click="BtnUacFromLaunch_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Emoji" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">🛡</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Skip UAC prompt (scheduled task)</TextBlock>
+              </StackPanel>
+            </Button>
+            <Button Style="{StaticResource MenuButton}" Height="34" Margin="0,3" Click="BtnNextFolder_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">←</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Back to Folder Selection</TextBlock>
+              </StackPanel>
+            </Button>
+            <Button Style="{StaticResource MenuButton}" Height="34" Margin="0,3" Click="BtnExit_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">✕</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Exit</TextBlock>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+          <StackPanel Name="ViewEditIni" Visibility="Collapsed">
+            <TextBlock Text="Edit dse.ini" FontSize="13" Foreground="#9B59B6" FontWeight="Bold" Margin="0,0,0,4" />
+            <TextBlock Name="IniPathText" Text="" Foreground="#555555" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16" />
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+              <CheckBox Name="ChkToggleDse" Style="{StaticResource DarkCheckBox}" VerticalAlignment="Top" Margin="0,2,10,0" />
+              <StackPanel>
+                <TextBlock Text="Automatically toggle DSE" Foreground="#CCCCCC" FontSize="12" />
+                <TextBlock Text="If DSE was already disabled, dse will not run." Foreground="#555555" FontSize="10" TextWrapping="Wrap" />
+              </StackPanel>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+              <CheckBox Name="ChkSteamHooks" Style="{StaticResource DarkCheckBox}" VerticalAlignment="Top" Margin="0,2,10,0" />
+              <StackPanel>
+                <TextBlock Text="Enable Steam API hooks" Foreground="#CCCCCC" FontSize="12" />
+              </StackPanel>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+              <CheckBox Name="ChkColdloader" Style="{StaticResource DarkCheckBox}" VerticalAlignment="Top" Margin="0,2,10,0" />
+              <StackPanel>
+                <TextBlock Text="Enable coldloader support" Foreground="#CCCCCC" FontSize="12" />
+                <TextBlock Text="For games that need it." Foreground="#555555" FontSize="10" />
+              </StackPanel>
+            </StackPanel>
+            <TextBlock Text="Path to original Steam client (for coldloader hooks)" Foreground="#888888" FontSize="11" Margin="0,0,0,4" />
+            <TextBox Name="TxtSteamPath" Style="{StaticResource DarkTextBox}" Margin="0,0,0,14" />
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+              <CheckBox Name="ChkSteamApiForward" Style="{StaticResource DarkCheckBox}" VerticalAlignment="Top" Margin="0,2,10,0" />
+              <StackPanel>
+                <TextBlock Text="Forward Steam API exports" Foreground="#CCCCCC" FontSize="12" />
+                <TextBlock Text="Points the emulator steam_api64.dll exports at the real steam_api64_o.dll next to it." Foreground="#555555" FontSize="10" TextWrapping="Wrap" />
+              </StackPanel>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+              <CheckBox Name="ChkIgnoreWarnings" Style="{StaticResource DarkCheckBox}" VerticalAlignment="Top" Margin="0,2,10,0" />
+              <StackPanel>
+                <TextBlock Text="Ignore warnings" Foreground="#CCCCCC" FontSize="12" />
+                <TextBlock Text="Skip warning prompts and proceed automatically." Foreground="#555555" FontSize="10" TextWrapping="Wrap" />
+              </StackPanel>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+              <CheckBox Name="ChkLogging" Style="{StaticResource DarkCheckBox}" VerticalAlignment="Top" Margin="0,2,10,0" />
+              <StackPanel>
+                <TextBlock Text="Enable logging output" Foreground="#CCCCCC" FontSize="12" />
+              </StackPanel>
+            </StackPanel>
+            <TextBlock Text="Problematic services to stop/delete" Foreground="#888888" FontSize="11" Margin="0,0,0,2" />
+            <TextBlock Text="Format: ServiceName:ACTION, comma separated — e.g. vgk:STOP, vgc:STOP, FACEIT:DELETE" Foreground="#555555" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,2" />
+            <TextBlock Text="STOP relaunches the service when the game ends; DELETE removes it for good." Foreground="#555555" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,4" />
+            <TextBox Name="TxtProblematicServices" Style="{StaticResource DarkTextBox}" Margin="0,0,0,14" />
+            <TextBlock Text="Problematic tasks to kill" Foreground="#888888" FontSize="11" Margin="0,0,0,2" />
+            <TextBlock Text="Comma separated executable names — e.g. vgtray.exe" Foreground="#555555" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,4" />
+            <TextBox Name="TxtProblematicTasks" Style="{StaticResource DarkTextBox}" Margin="0,0,0,14" />
+            <Grid Margin="0,6,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Button Grid.Column="0" Style="{StaticResource MenuButton}" Height="34" HorizontalContentAlignment="Center" Click="BtnCancelIni_Click">
+                <TextBlock Text="Cancel" FontSize="12" />
+              </Button>
+              <Button Grid.Column="2" Style="{StaticResource PrimaryButton}" Height="34" HorizontalContentAlignment="Center" Click="BtnSaveIni_Click">
+                <TextBlock Text="Save" FontSize="12" />
+              </Button>
+            </Grid>
+          </StackPanel>
+          <StackPanel Name="ViewUac" Visibility="Collapsed">
+            <TextBlock Text="Skip UAC prompt" FontSize="13" Foreground="#9B59B6" FontWeight="Bold" Margin="0,0,0,4" />
+            <TextBlock Text="Creates the scheduled task dse_&lt;exe name&gt; so DSE can start the game elevated without asking every time. DSE ignores the task when the exe, working folder or run level do not match, then falls back to dse_elevator.exe." Foreground="#555555" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,14" />
+            <TextBlock Text="Game executable" Foreground="#888888" FontSize="11" Margin="0,0,0,4" />
+            <ItemsControl Name="UacExeList">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Button Style="{StaticResource MenuButton}" Height="Auto" Padding="14,8" Margin="0,0,0,4" HorizontalContentAlignment="Left" Content="{Binding}" Tag="{Binding}" Click="UacExe_Click" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <DockPanel Margin="0,6,0,0" LastChildFill="True">
+              <Button Name="BtnUacBrowse" DockPanel.Dock="Right" Style="{StaticResource MenuButton}" Height="34" MinWidth="110" Margin="8,0,0,0" Click="BtnUacBrowse_Click">
+                <TextBlock Text="Browse" FontSize="12" />
+              </Button>
+              <TextBox Name="UacExeBox" Style="{StaticResource DarkTextBox}" Height="34" IsReadOnly="True" />
+            </DockPanel>
+            <TextBlock Name="UacTaskText" Text="" Foreground="#555555" FontSize="10" Margin="0,8,0,0" TextWrapping="Wrap" />
+            <TextBlock Name="UacStatusText" Text="" Foreground="#CCCCCC" FontSize="11" Margin="0,6,0,12" TextWrapping="Wrap" />
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Button Name="BtnUacCreate" Grid.Column="0" Style="{StaticResource PrimaryButton}" Height="34" HorizontalContentAlignment="Center" Click="BtnUacCreate_Click">
+                <TextBlock Text="Create task" FontSize="12" />
+              </Button>
+              <Button Name="BtnUacCheck" Grid.Column="2" Style="{StaticResource MenuButton}" Height="34" HorizontalContentAlignment="Center" Click="BtnUacCheck_Click">
+                <TextBlock Text="Check" FontSize="12" />
+              </Button>
+            </Grid>
+            <Button Name="BtnUacRemove" Style="{StaticResource MenuButton}" Height="34" Margin="0,6,0,0" HorizontalContentAlignment="Center" Click="BtnUacRemove_Click">
+              <TextBlock Text="Remove task" FontSize="12" />
+            </Button>
+            <Button Style="{StaticResource MenuButton}" Height="34" Margin="0,6,0,0" HorizontalContentAlignment="Center" Click="BtnUacBack_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">←</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Back</TextBlock>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+          <StackPanel Name="ViewDone" Visibility="Collapsed">
+            <TextBlock Name="DoneTitle" Text="Done" FontSize="14" FontWeight="Bold" Foreground="#27AE60" Margin="0,0,0,6" />
+            <TextBlock Name="DoneMessage" Text="" FontSize="12" Foreground="#AAAAAA" TextWrapping="Wrap" Margin="0,0,0,16" />
+            <Button Style="{StaticResource MenuButton}" Height="34" Margin="0,0,0,6" Click="BtnDoneStartOver_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">↩</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Start Over</TextBlock>
+              </StackPanel>
+            </Button>
+            <Button Style="{StaticResource MenuButton}" Height="34" Click="BtnExit_Click">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">✕</TextBlock>
+                <TextBlock FontSize="13" VerticalAlignment="Center">Exit</TextBlock>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+      <Grid Name="ViewPreviousSetups" Row="1" Visibility="Collapsed" Margin="20,16">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0">
+          <TextBlock Text="Previous Setups" FontSize="13" Foreground="#9B59B6" FontWeight="Bold" Margin="0,0,0,4" />
+          <TextBlock Text="Folders you've set up before. Check status and update as needed." FontSize="11" Foreground="#555555" Margin="0,0,0,14" />
+          <Button Style="{StaticResource MenuButton}" Height="32" Margin="0,0,0,12" Click="BtnAddSetup_Click">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">+</TextBlock>
+              <TextBlock FontSize="12" VerticalAlignment="Center">Add Existing Setup...</TextBlock>
+            </StackPanel>
+          </Button>
+          <TextBlock Name="NoSetupsText" Text="No previous setups tracked yet." Foreground="#555555" FontSize="12" Margin="0,0,0,10" Visibility="Collapsed" />
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" Style="{StaticResource DarkScrollViewer}" Padding="0,0,10,0" Margin="0,0,-10,0">
+          <ItemsControl Name="SetupsList">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Background="#141414" BorderBrush="#2A2A2A" BorderThickness="1" CornerRadius="4" Padding="10,8" Margin="0,0,0,6">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <CheckBox Grid.Column="0" Style="{StaticResource DarkCheckBox}" VerticalAlignment="Center" Margin="0,0,10,0" IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                      <TextBlock Foreground="#CCCCCC" FontSize="12" TextWrapping="Wrap" Text="{Binding Path}" />
+                      <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                        <TextBlock FontSize="10" FontWeight="Bold" Text="{Binding Status}" Foreground="{Binding StatusColor}" />
+                        <TextBlock Text=" · " Foreground="#444444" FontSize="10" Margin="4,0" />
+                        <TextBlock Foreground="#555555" FontSize="10" Text="{Binding AddedText}" />
+                      </StackPanel>
+                    </StackPanel>
+                    <Button Grid.Column="2" Style="{StaticResource MenuButton}" Height="28" Padding="10,4" Margin="0,0,6,0" VerticalAlignment="Center" Tag="{Binding Path}" Click="BtnEditIniSetupRow_Click">
+                      <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="Segoe UI Symbol" FontSize="11" Margin="0,0,5,0" VerticalAlignment="Center">✎</TextBlock>
+                        <TextBlock Text="Ini" FontSize="11" VerticalAlignment="Center" />
+                      </StackPanel>
+                    </Button>
+                    <Button Grid.Column="3" Style="{StaticResource MenuButton}" Height="28" Padding="10,4" Margin="0,0,6,0" VerticalAlignment="Center" Tag="{Binding Path}" Visibility="{Binding NeedsSetup, Converter={StaticResource BoolToVis}}" Click="BtnSetupRow_Click">
+                      <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="Segoe UI Symbol" FontSize="11" Margin="0,0,5,0" VerticalAlignment="Center">▶</TextBlock>
+                        <TextBlock Text="Set Up" FontSize="11" VerticalAlignment="Center" />
+                      </StackPanel>
+                    </Button>
+                    <Button Grid.Column="3" Style="{StaticResource MenuButton}" Height="28" Padding="10,4" Margin="0,0,6,0" VerticalAlignment="Center" Tag="{Binding Path}" Visibility="{Binding HasFiles, Converter={StaticResource BoolToVis}}" Click="BtnUndoSetupRow_Click">
+                      <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="Segoe UI Symbol" FontSize="11" Margin="0,0,5,0" VerticalAlignment="Center">↩</TextBlock>
+                        <TextBlock Text="Undo" FontSize="11" VerticalAlignment="Center" />
+                      </StackPanel>
+                    </Button>
+                    <Button Grid.Column="4" Content="✕" Foreground="#888888" Background="#00FFFFFF" BorderThickness="0" FontSize="12" Cursor="Hand" Padding="8,2" VerticalAlignment="Center" Tag="{Binding Path}" Click="BtnRemoveSetup_Click" />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+        <StackPanel Grid.Row="2" Margin="0,10,0,0">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="8" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Style="{StaticResource MenuButton}" Height="34" HorizontalContentAlignment="Center" Click="BtnUpdateSelected_Click">
+              <TextBlock Text="Update Selected" FontSize="12" TextAlignment="Center" HorizontalAlignment="Stretch" />
+            </Button>
+            <Button Grid.Column="2" Style="{StaticResource PrimaryButton}" Height="34" HorizontalContentAlignment="Center" Click="BtnUpdateAll_Click">
+              <TextBlock Text="Update All Outdated" FontSize="12" TextAlignment="Center" HorizontalAlignment="Stretch" />
+            </Button>
+          </Grid>
+          <Button Style="{StaticResource MenuButton}" Height="34" Margin="0,8,0,0" HorizontalContentAlignment="Center" Click="BtnUndoSelected_Click">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+              <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">↩</TextBlock>
+              <TextBlock Text="UnDo Selected DSE Setups" FontSize="12" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+          <Grid Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="8" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Style="{StaticResource MenuButton}" Height="32" HorizontalContentAlignment="Center" Click="BtnRefreshSetups_Click">
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">↻</TextBlock>
+                <TextBlock Text="Refresh / Re-check" FontSize="12" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="2" Style="{StaticResource MenuButton}" Height="32" HorizontalContentAlignment="Center" Click="BtnBackFromSetups_Click">
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center">←</TextBlock>
+                <TextBlock Text="Back" FontSize="12" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+          </Grid>
+        </StackPanel>
+      </Grid>
+      <Grid Name="ViewReadme" Row="1" Visibility="Collapsed" Margin="20,16" PreviewMouseWheel="Readme_PreviewMouseWheel">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0">
+          <TextBlock Text="dse readme" FontSize="13" Foreground="#9B59B6" FontWeight="Bold" Margin="0,0,0,4" />
+          <TextBlock Name="ReadmeSubtitle" Text="" FontSize="11" Foreground="#555555" Margin="0,0,0,12" TextWrapping="Wrap" />
+        </StackPanel>
+        <ScrollViewer Name="ReadmeScroll" Grid.Row="1" Style="{StaticResource DarkScrollViewer}" Padding="0,0,10,0" Margin="0,0,-10,0">
+          <FlowDocumentScrollViewer Name="ReadmeViewer" VerticalScrollBarVisibility="Disabled" IsToolBarVisible="False" Background="#00FFFFFF" Focusable="False" />
+        </ScrollViewer>
+        <Grid Row="2" Margin="0,12,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="8" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Button Grid.Column="0" Style="{StaticResource MenuButton}" Height="34" HorizontalContentAlignment="Center" Click="BtnReadmeGithub_Click">
+            <TextBlock Text="Open on GitHub" FontSize="12" />
+          </Button>
+          <Button Grid.Column="2" Style="{StaticResource PrimaryButton}" Height="34" HorizontalContentAlignment="Center" Click="BtnReadmeBack_Click">
+            <TextBlock Text="Back" FontSize="12" />
+          </Button>
+        </Grid>
+      </Grid>
+      <Border Grid.Row="2" Background="#141414" BorderBrush="#1E1E1E" BorderThickness="0,1,0,0" Padding="20,8">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="GUI by DNAngel" Foreground="#555555" FontSize="10" VerticalAlignment="Center" FontFamily="Segoe UI" />
+          <TextBlock Grid.Column="1" Text="v1.1" Foreground="#555555" FontSize="10" VerticalAlignment="Center" FontFamily="Segoe UI" />
+        </Grid>
+      </Border>
+    </Grid>
+    <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Stretch" Background="#2A1A3A" ResizeDirection="Columns" />
+    <Grid Column="2" Background="#0A0A0A">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+      <Border Grid.Row="0" Background="#141414" BorderBrush="#1E1E1E" BorderThickness="0,0,0,1" Padding="12,14">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <StackPanel Grid.Column="0">
+            <TextBlock Text="Output" FontSize="14" FontWeight="Bold" Foreground="#9B59B6" FontFamily="Consolas" />
+            <Border Background="#9B59B6" Height="1" Margin="0,4,0,0" Opacity="0.3" />
+          </StackPanel>
+          <Button Name="BtnClearLog" Grid.Column="1" Content="✕ Clear" Foreground="#666666" Background="#00FFFFFF" BorderThickness="0" FontSize="10" FontFamily="Consolas" Cursor="Hand" Padding="4,2" VerticalAlignment="Top" Click="BtnClearLog_Click" />
+        </Grid>
+      </Border>
+      <ScrollViewer Name="LogScrollViewer" Grid.Row="1" Style="{StaticResource DarkScrollViewer}" Padding="12,8">
+        <RichTextBox Name="LogBox" Background="#00FFFFFF" BorderThickness="0" IsReadOnly="True" FontFamily="Consolas" FontSize="11" Foreground="#AAAAAA" IsDocumentEnabled="True" Padding="0" Block.LineHeight="18" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled" />
+      </ScrollViewer>
+      <Border Grid.Row="2" Background="#111111" BorderBrush="#1E1E1E" BorderThickness="0,1,0,0" Padding="12,6">
+        <TextBlock Name="LogLineCount" Text="0 lines" Foreground="#555555" FontSize="10" FontFamily="Segoe UI" />
+      </Border>
+    </Grid>
+  </Grid>
+</Window>
