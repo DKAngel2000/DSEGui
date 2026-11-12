@@ -170,6 +170,9 @@ internal static class Updater
         return Normalize(raw);
     }
 
+    /// <summary>The running build's version for display, e.g. "1.1.2".</summary>
+    internal static string DisplayVersion() => CurrentVersion();
+
     /// <summary>Trims a leading v and any -suffix/+build part: "v1.2.0-beta" → "1.2.0".</summary>
     private static string Normalize(string? version)
     {
