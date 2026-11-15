@@ -582,6 +582,24 @@ public partial class MainWindow : Window
                 ["problematic_services"] = TxtProblematicServices.Text.Trim(),
                 ["problematic_tasks"]    = TxtProblematicTasks.Text.Trim(),
             };
+
+            bool steamHooks = ChkSteamHooks.IsChecked == true;
+            bool dependentSteamFeature = ChkColdloader.IsChecked == true || ChkSteamApiForward.IsChecked == true;
+            if (!steamHooks && dependentSteamFeature)
+            {
+                var answer = System.Windows.MessageBox.Show(
+                    "Coldloader hooks or Steam API forwarding is enabled, but Steam hooks is off. Steam hooks should be enabled for these features to work correctly. Enable Steam hooks now?",
+                    "Steam hooks recommended",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Warning,
+                    System.Windows.MessageBoxResult.Yes);
+                if (answer == System.Windows.MessageBoxResult.Yes)
+                {
+                    ChkSteamHooks.IsChecked = true;
+                    values["steamHooks"] = "true";
+                }
+            }
+
             SaveIniValues(path, values);
             AppendLog($"Saved dse.ini: {path}", "Green");
         }
